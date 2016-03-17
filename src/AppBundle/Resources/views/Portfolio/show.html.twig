@@ -1,0 +1,69 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Portfolio {{ portfolio.name }}</h1>
+
+    <h2>Stock list</h2>
+    <ul>
+        {% for stock in portfolio.stocks %}
+            <li>{{ stock.code }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Graph</h2>
+    <div class="ct-chart ct-golden-section" id="chart"></div>
+
+    <div class="small secondary expanded button-group">
+        <a class="button" href="{{ path('portfolio_index') }}">Back to the list</a>
+        <a class="button" href="{{ path('portfolio_edit', { 'id': portfolio.id }) }}">Edit</a>
+        <a class="button" onclick="return confirm('Delete?')" href="{{ path('portfolio_delete', { 'id': portfolio.id }) }}">Delete</a>
+    </div>
+
+
+{% endblock %}
+
+{% block javascripts %}
+    <script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
+    <script>
+// Our labels and three data series
+var data = {
+  labels: ['{{ graphData|keys|join("', '")|raw }}'],
+  series: [
+    [{{ graphData|join(' ,') }}]
+  ]
+};
+
+// We are setting a few options for our chart and override the defaults
+var options = {
+  // Don't draw the line chart points
+  showPoint: false,
+  // Disable line smoothing
+  lineSmooth: false,
+  // X-Axis specific configuration
+  axisX: {
+    // We can disable the grid for this axis
+    showGrid: true,
+    // and also don't show the label
+    showLabel: true
+  },
+  // Y-Axis specific configuration
+  axisY: {
+    // Lets offset the chart a bit from the labels
+    offset: 60,
+    // The label interpolation function enables you to modify the values
+    // used for the labels on each axis. Here we are converting the
+    // values into million pound.
+    labelInterpolationFnc: function(value) {
+      return value + '$';
+    }
+  }
+};
+
+// All you need to do is pass your configuration as third parameter to the chart function
+new Chartist.Line('#chart', data, options);
+    </script>
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Portfolio form</h1>
+
+    {{ form_start(form) }}
+        <ul class="stocks" data-prototype="{{ form_widget(form.stocks.vars.prototype)|e }}">
+            {% for stock in form.stocks %}
+                <li>{{ form_row(stock.code) }}</li>
+            {% endfor %}
+        </ul>
+        {{ form_widget(form) }}
+        <input class="button" type="submit" value="Save" />
+    {{ form_end(form) }}
+
+    <a class="button" href="{{ path('portfolio_index') }}">Back to the list</a>
+
+    <script>
+        var $collectionHolder;
+
+        var $addLink = $('<a href="#" class="add_stock_link">Add a stock</a>');
+        var $newLinkLi = $('<li></li>').append($addLink);
+
+        jQuery(document).ready(function() {
+            $collectionHolder = $('ul.stocks');
+
+            $collectionHolder.find('li').each(function() {
+                addDeleteLink($(this));
+            });
+
+            $collectionHolder.append($newLinkLi);
+            $collectionHolder.data('index', $collectionHolder.find(':input').length);
+            $addLink.on('click', function(e) {
+                e.preventDefault();
+                addStockForm($collectionHolder, $newLinkLi);
+            });
+        });
+
+        function addStockForm($collectionHolder, $newLinkLi) {
+            var prototype = $collectionHolder.data('prototype');
+            var index = $collectionHolder.data('index');
+            var newForm = prototype.replace(/__name__/g, index);
+            $collectionHolder.data('index', index + 1);
+            var $newFormLi = $('<li></li>').append(newForm);
+            $newLinkLi.before($newFormLi);
+        }
+
+        function addDeleteLink($tagFormLi) {
+                var $removeFormA = $('<a href="#">delete this stock</a>');
+                $tagFormLi.append($removeFormA);
+
+                $removeFormA.on('click', function(e) {
+                    // prevent the link from creating a "#" on the URL
+                    e.preventDefault();
+
+                    // remove the li for the tag form
+                    $tagFormLi.remove();
+                });
+            }
+    </script>
+{% endblock %}
